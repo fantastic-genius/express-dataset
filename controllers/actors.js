@@ -6,15 +6,6 @@ var getAllActors = async (req, res) => {
 	let actorsEventsArr = await getActorsEvents();
 
 	actorsEventsArr.sort((a, b) => {
-		const aDateTime = new Date(a.events[0].created_at).getTime();
-		const bDateTime = new Date(b.events[0].created_at).getTime();
-		if(aDateTime === bDateTime){
-			return a.events[0].actor.login.localeCompare(b.events[0].actor.login);
-		}
-		return bDateTime - aDateTime;
-	});
-
-	actorsEventsArr.sort((a, b) => {
 		if(a.events.length == b.events.length){
 			const aDateTime = new Date(a.events[0].created_at).getTime();
 			const bDateTime = new Date(b.events[0].created_at).getTime();
@@ -91,16 +82,6 @@ var getStreak = async (req, res) => {
 			...actorEvent,
 			maxDateCount
 		});
-	});
-
-
-	actorsData.sort((a, b) => {
-		const aDateTime = new Date(a.events[0].created_at).getTime();
-		const bDateTime = new Date(b.events[0].created_at).getTime();
-		if(aDateTime === bDateTime){
-			return a.events[0].actor.login.localeCompare(b.events[0].actor.login);
-		}
-		return bDateTime - aDateTime;
 	});
 
 	actorsData.sort((a, b) => {
