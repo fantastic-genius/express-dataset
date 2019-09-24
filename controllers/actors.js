@@ -3,9 +3,30 @@ const moment = require('moment');
 moment().format();
 
 var getAllActors = async (req, res) => {
-	const actorEventsArr = await getActorsEvents();
-	actorEventsArr.sort((a, b) => (a.events.length < b.events.length ? 1 : -1))
-	const actor = actorEventsArr.map(actorEvents => actorEvents.events[0].actor)
+	let actorsEventsArr = await getActorsEvents();
+
+	actorsEventsArr.sort((a, b) => {
+		const aDateTime = new Date(a.events[0].created_at).getTime();
+		const bDateTime = new Date(b.events[0].created_at).getTime();
+		if(aDateTime === bDateTime){
+			return a.events[0].actor.login.localeCompare(b.events[0].actor.login);
+		}
+		return bDateTime - aDateTime;
+	});
+
+	actorsEventsArr.sort((a, b) => {
+		if(a.events.length == b.events.length){
+			const aDateTime = new Date(a.events[0].created_at).getTime();
+			const bDateTime = new Date(b.events[0].created_at).getTime();
+			if( aDateTime === bDateTime){
+				return a.events[0].actor.login.localeCompare(b.events[0].actor.login)	
+			}
+			return bDateTime - aDateTime;
+		}
+		return b.events.length - a.events.length
+	});
+	
+	const actor = actorsEventsArr.map(actorEvents => actorEvents.events[0].actor)
 
 	return res.status(200).json(actor);
 };
@@ -72,27 +93,38 @@ var getStreak = async (req, res) => {
 		});
 	});
 
+
 	actorsData.sort((a, b) => {
-		if(a.maxDateCount < b.maxDateCount){
-			return 1;
-		}else{
-			return -1;
+		const aDateTime = new Date(a.events[0].created_at).getTime();
+		const bDateTime = new Date(b.events[0].created_at).getTime();
+		if(aDateTime === bDateTime){
+			return a.events[0].actor.login.localeCompare(b.events[0].actor.login);
 		}
+		return bDateTime - aDateTime;
+	});
+
+	actorsData.sort((a, b) => {
+		if(a.maxDateCount == b.maxDateCount){
+			const aDateTime = new Date(a.events[0].created_at).getTime();
+			const bDateTime = new Date(b.events[0].created_at).getTime();
+			if( aDateTime === bDateTime){
+				return a.events[0].actor.login.localeCompare(b.events[0].actor.login)	
+			}
+			return bDateTime - aDateTime;
+		}
+		return b.maxDateCount - a.maxDateCount
 	});
 
 
-	const actors = actorsData.map(data => {
-		return data.events[0].actor
-	})
+	const actors = actorsData.map(data => data.events[0].actor);
 	
-	return res.status(200).json(actors)
+	return res.status(200).json(actors);
 };
 
 const getActorsEvents = async () => {
 	const events = await db.Events.findAll({
 		order: [
-			['created_at', 'DESC'],
-			['actor.login']
+			['created_at', 'DESC']
 		]
 	});
 
